@@ -1,0 +1,101 @@
+/* Tokens come from tokens.css — import that once in your app entry point. */
+.review-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  font-family: Inter, system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+.chip {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius-control);
+}
+.chip--accent { background: var(--accent-bg); color: var(--accent-text); }
+.chip--pro { background: var(--pro-bg); color: var(--pro-text); }
+
+.issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.issue-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+}
+.badge--danger { background: var(--danger-bg); color: var(--danger-text); }
+.badge--warning { background: var(--warning-bg); color: var(--warning-text); }
+
+.issue-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0; /* lets long explanations wrap instead of pushing the row wider */
+}
+.issue-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.issue-explanation {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.review-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) 0;
+}
+.success-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.review-empty__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.review-empty__body {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 400px) {
+  .review-card {
+    padding: var(--space-md);
+  }
+}

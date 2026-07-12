@@ -1,0 +1,32 @@
+/* Shared design tokens — mirrors the Figma "Color", "Spacing", and "Radius"
+   variable collections 1:1. Import this ONCE in your app's entry point
+   (e.g. main.jsx), before any component CSS that references these vars.
+   Update colors/spacing here only — component CSS should never redeclare them. */
+:root {
+  /* Color */
+  --bg-surface: #fafafc;
+  --border-default: #d9d9de;
+  --text-primary: #1c1c21;
+  --text-secondary: #6b6b75;
+  --text-muted: #999aa3;
+  --accent-bg: #dce9ff;
+  --accent-text: #2160d9;
+  --pro-bg: #ebe0fc;
+  --pro-text: #7f4acc;
+  --danger-bg: #ffe3e3;
+  --danger-text: #bf2929;
+  --warning-bg: #fff0cc;
+  --warning-text: #b37f0f;
+  --success: #218c45;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Radius */
+  --radius-control: 8px;
+  --radius-card: 12px;
+}
