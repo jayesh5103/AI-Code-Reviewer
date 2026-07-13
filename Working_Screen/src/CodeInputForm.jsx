@@ -14,12 +14,19 @@ const LANGUAGE_OPTIONS = [
  *  - "Auto-detect" selected but the code doesn't confidently match
  *    Python or JavaScript -> S-1b message (Story 2 AC)
  *
+ * @param {string} [initialCode=""]         - seed value for the textarea (survives back-nav)
+ * @param {string} [initialLanguage="auto"]  - seed value for the selector (survives back-nav)
  * @param {(payload: { code: string, language: "python" | "javascript" }) => void} onSubmit
  * @param {boolean} isSubmitting - disables the button and swaps its label while a review is in flight
  */
-export default function CodeInputForm({ onSubmit, isSubmitting = false }) {
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("auto");
+export default function CodeInputForm({
+  initialCode = "",
+  initialLanguage = "auto",
+  onSubmit,
+  isSubmitting = false,
+}) {
+  const [code, setCode] = useState(initialCode);
+  const [language, setLanguage] = useState(initialLanguage);
   const [errors, setErrors] = useState({});
 
   function handleCodeChange(e) {
@@ -127,6 +134,8 @@ function detectLanguage(code) {
  * Usage:
  *
  * <CodeInputForm
+ *   initialCode={reviewState.code}
+ *   initialLanguage={reviewState.language}
  *   isSubmitting={reviewInFlight}
  *   onSubmit={({ code, language }) => runReview(code, language)}
  * />

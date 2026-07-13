@@ -1,0 +1,81 @@
+/* Tokens come from Tokens.css — imported once in main.jsx. No new tokens here. */
+
+.error-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  font-family: Inter, system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Warning icon circle */
+.error-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  flex-shrink: 0;
+  margin-top: var(--space-xs);
+}
+
+.error-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.error-card__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.error-card__message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* Retry button — same style as CodeInputForm's submit button */
+.error-card__retry {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--text-primary);
+  border: none;
+  border-radius: var(--radius-control);
+  padding: 8px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+.error-card__retry:hover {
+  opacity: 0.85;
+}
+.error-card__retry:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 400px) {
+  .error-card {
+    padding: var(--space-md);
+  }
+  .error-card__retry {
+    width: 100%;
+  }
+}

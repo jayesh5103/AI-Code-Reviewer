@@ -1,0 +1,63 @@
+/* Tokens come from Tokens.css — imported once in main.jsx. No new tokens here. */
+
+/*
+ * Loading card — S-2 treatment.
+ * Same card shape (max-width, padding, border, radius) as ReviewResults.css
+ * and ReviewError.css so all three outcome cards feel visually consistent.
+ */
+.loading-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  font-family: Inter, system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Spinner ring */
+.loading-card__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--accent-text);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.loading-card__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.loading-card__subtitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 400px) {
+  .loading-card {
+    padding: var(--space-md);
+  }
+}

@@ -1,3 +1,22 @@
+/* Layout wrapper shared by all route-level pages */
+.page-center {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px var(--space-lg);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Stacks the input form and the loading card vertically on the / route */
+.input-page__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  width: 100%;
+}
 .counter {
   font-size: 16px;
   padding: 5px 10px;
