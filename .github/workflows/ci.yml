@@ -82,4 +82,5 @@ jobs:
       - name: Run integration tests
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_CI }}
-        run: pytest backend/tests/test_integration.py
+        run: pytest -v backend/tests/test_integration.py
+
