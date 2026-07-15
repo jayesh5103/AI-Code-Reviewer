@@ -66,11 +66,13 @@ def test_integration_fallback_on_api_error():
             assert data["source"] == "fallback"
             assert isinstance(data["issues"], list)
             
-            # Confirm that subprocess.run was called to launch pylint
             spy_run.assert_called()
             called_args = [call[0][0] for call in spy_run.call_args_list]
-            pylint_called = any("pylint" in arg for arg in called_args)
+            pylint_called = any(any("pylint" in part for part in arg) for arg in called_args)
             assert pylint_called is True
+
+
+
             
         finally:
             # Restore original client

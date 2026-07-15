@@ -310,9 +310,16 @@ def _fallback_issues(code: str, language: str) -> list[Issue]:
             code_file.write_text(code, encoding="utf-8")
 
             try:
+                import sys
+                pylint_bin = "pylint"
+                candidate = Path(sys.executable).parent / "pylint"
+                if candidate.exists():
+                    pylint_bin = str(candidate)
+
                 # Run pylint with --output-format=json, --persistent=n (disabled cache), and --score=n
-                cmd = ["pylint", "--output-format=json", "--persistent=n", "--score=n", str(code_file)]
+                cmd = [pylint_bin, "--output-format=json", "--persistent=n", "--score=n", str(code_file)]
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=5, shell=False)
+
 
                 # Pylint returns non-zero codes on style/lint findings. That is expected.
                 # Only raise if pylint crashes completely and prints no stdout.

@@ -45,3 +45,18 @@ This log tracks findings from exploratory testing, the security audit pass, and 
 - **Remediation**:
   Replaced `"/api/review"` with `url` inside `client.post()`.
 - **Status**: **FIXED**
+
+---
+
+## 4. Production Linter Fallback Returns Empty Issues List
+
+- **Discovery Phase**: Final Integration Verification Pass
+- **Severity**: Medium
+- **Description**:
+  When forcing an AI review failure in production (e.g. by using `TRIGGER_FALLBACK`), the server falls back to the linter but returns `{"issues": []}`. Locally, the same request returns linting errors (e.g. `Missing module docstring`, `Missing function docstring`).
+- **Root Cause**:
+  In the production Render environment, the `pylint` command cannot be executed because it is not in the system's `PATH`. When `subprocess.run(["pylint", ...])` is executed, it raises a `FileNotFoundError` or other exception. The code catches all exceptions in the `_fallback_issues` function and logs the warning but degrades gracefully by returning an empty issues list `[]`.
+- **Remediation**:
+  Modified `backend/main.py` to dynamically resolve the `pylint` binary location relative to `sys.executable` (the current Python interpreter path), supporting virtual environments out-of-the-box.
+- **Status**: **FIXED**
+
