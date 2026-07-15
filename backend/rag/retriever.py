@@ -98,14 +98,27 @@ def _load() -> bool:
     try:
         from sklearn.feature_extraction.text import TfidfVectorizer
     except ImportError as exc:
-        log.warning("RAG disabled — scikit-learn not installed: %s", exc)
+        log.warning(
+            "RAG disabled — scikit-learn not installed",
+            extra={
+                "event": "rag_disabled_no_sklearn",
+                "error": str(exc),
+            }
+        )
         return False
 
     _sklearn_available = True
 
     for language, path in _SOURCES.items():
         if not path.exists():
-            log.warning("Style doc not found at %s — skipping %s", path, language)
+            log.warning(
+                "Style doc not found — skipping language indexing",
+                extra={
+                    "event": "rag_style_doc_missing",
+                    "path": str(path),
+                    "language": language,
+                }
+            )
             continue
 
         text = path.read_text(encoding="utf-8")
@@ -113,7 +126,14 @@ def _load() -> bool:
         chunks = _chunk(text, source_label=label)
 
         if not chunks:
-            log.warning("No chunks extracted from %s", path)
+            log.warning(
+                "No chunks extracted from style doc",
+                extra={
+                    "event": "rag_no_chunks_extracted",
+                    "path": str(path),
+                    "language": language,
+                }
+            )
             continue
 
         # Fit a TF-IDF vectorizer on the chunk texts.
@@ -129,8 +149,12 @@ def _load() -> bool:
             "matrix":     matrix,
         }
         log.info(
-            "RAG index built (TF-IDF): %d chunks for language=%s",
-            len(chunks), language,
+            "RAG index built (TF-IDF)",
+            extra={
+                "event": "rag_index_built",
+                "chunks_count": len(chunks),
+                "language": language,
+            }
         )
 
     return bool(_index)

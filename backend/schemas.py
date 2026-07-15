@@ -31,3 +31,15 @@ class ReviewResponse(BaseModel):
 
     source: Literal["ai", "fallback"]
     issues: list[Issue]
+
+
+class UsageResponse(BaseModel):
+    """Body returned by GET /api/usage."""
+
+    total_requests: int
+    ai_requests: int
+    fallback_requests: int
+    total_prompt_tokens: int
+    total_completion_tokens: int
+    total_tokens: int
+
