@@ -62,6 +62,11 @@ _usage_stats = {
     "total_tokens": 0,
 }
 
+# In-memory tracking of request quota limits.
+# Render free tier restarts reset this count.
+DAILY_QUOTA_LIMIT = 1000
+_alerted_80_percent = False
+
 # ---------------------------------------------------------------------------
 # App setup
 # ---------------------------------------------------------------------------
@@ -443,6 +448,78 @@ export default [
     return issues
 
 
+def _check_and_trigger_quota_alert() -> None:
+    """
+    Check if total requests since start of this instance have crossed 80% of the daily quota limit (1,000).
+    If so, log a structured warning and trigger a webhook alert (once per instance lifetime).
+
+    WARNING: Because the usage statistics are stored strictly in-memory (FR-9) to remain stateless,
+    Render's free tier container restarts will reset this counter. Thus, this warning alerts on
+    crossing 80% of the daily quota *since the last container restart*, not since midnight.
+    This is an explicit platform/design trade-off.
+    """
+    global _alerted_80_percent
+    total = _usage_stats["total_requests"]
+    threshold_env = os.environ.get("QUOTA_ALERT_THRESHOLD")
+    if threshold_env is not None and threshold_env.strip() != "":
+        try:
+            threshold = int(threshold_env)
+        except ValueError:
+            threshold = int(DAILY_QUOTA_LIMIT * 0.8)
+    else:
+        threshold = int(DAILY_QUOTA_LIMIT * 0.8)
+
+    if total >= threshold and not _alerted_80_percent:
+        _alerted_80_percent = True
+        percentage = (total / DAILY_QUOTA_LIMIT) * 100
+
+        # 1. Structured WARNING log entry
+        log.warning(
+            "Daily request quota limit threshold crossed",
+            extra={
+                "event": "quota_threshold_crossed",
+                "total_requests": total,
+                "quota_limit": DAILY_QUOTA_LIMIT,
+                "percentage": f"{percentage:.1f}%",
+                "correlation_id": correlation_id_var.get()
+            }
+        )
+
+        # 2. Webhook notification (Discord/Slack payload compatibility)
+        webhook_url = os.environ.get("ALERT_WEBHOOK_URL")
+        if webhook_url:
+            asyncio.create_task(_send_webhook_alert(webhook_url, total, percentage))
+        else:
+            log.debug("No ALERT_WEBHOOK_URL configured; skipping webhook alert.")
+
+
+async def _send_webhook_alert(url: str, total: int, percentage: float) -> None:
+    """Send a webhook notification about quota threshold crossing."""
+    import httpx
+    payload = {
+        "content": (
+            f"⚠️ **Code Review Assistant Alert** ⚠️\n"
+            f"Daily request quota threshold crossed (80% of {DAILY_QUOTA_LIMIT}).\n"
+            f"Current Requests: {total} ({percentage:.1f}%)\n"
+            f"Note: This tracks requests since the last Render container restart."
+        )
+    }
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.post(url, json=payload, timeout=5.0)
+            if res.status_code >= 400:
+                log.error(
+                    "Webhook notification failed with status",
+                    extra={"event": "webhook_failed", "status_code": res.status_code, "response": res.text}
+                )
+    except Exception as exc:
+        log.error(
+            "Failed to send webhook notification",
+            exc_info=True,
+            extra={"event": "webhook_error", "error": str(exc)}
+        )
+
+
 # ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
@@ -460,7 +537,9 @@ async def health() -> dict[str, str]:
 @app.get("/api/usage", response_model=UsageResponse, tags=["usage"])
 async def get_usage() -> UsageResponse:
     """Return the accumulated in-memory request and token usage statistics."""
-    return UsageResponse(**_usage_stats)
+    stats = dict(_usage_stats)
+    stats["quota_percentage"] = (stats["total_requests"] / DAILY_QUOTA_LIMIT) * 100
+    return UsageResponse(**stats)
 
 
 @app.post("/api/review", response_model=ReviewResponse, tags=["review"])
@@ -481,6 +560,7 @@ async def review_code(request: ReviewRequest) -> ReviewResponse:
     correlation_id_var.set(correlation_id)
 
     _usage_stats["total_requests"] += 1
+    _check_and_trigger_quota_alert()
 
     # ── Input size validation ────────────────────────────────────────────────
     # Cap submitted code at 500 lines or 10,000 characters

@@ -34,7 +34,13 @@ class ReviewResponse(BaseModel):
 
 
 class UsageResponse(BaseModel):
-    """Body returned by GET /api/usage."""
+    """
+    Body returned by GET /api/usage.
+
+    NOTE: Because the usage counter is stored in-memory (FR-9) and the Render free tier
+    restarts the container after inactivity, this tracks usage since the last restart,
+    not reliably since midnight. This is an intentional platform/infrastructure limit.
+    """
 
     total_requests: int
     ai_requests: int
@@ -42,4 +48,5 @@ class UsageResponse(BaseModel):
     total_prompt_tokens: int
     total_completion_tokens: int
     total_tokens: int
+    quota_percentage: float
 
