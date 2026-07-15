@@ -152,9 +152,9 @@ export function useReviewSubmit() {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15_000);
-
     try {
-      const response = await fetch("/api/review", {
+      const apiBase = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language }),
