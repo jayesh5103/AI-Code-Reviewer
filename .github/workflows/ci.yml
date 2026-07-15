@@ -1,0 +1,85 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  job1_unit_and_e2e:
+    name: Unit & E2E Tests + Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Install frontend dependencies
+        working-directory: Working_Screen
+        run: npm ci
+
+      - name: Run backend unit tests
+        run: pytest backend/tests/test_core.py
+
+      - name: Run frontend unit tests
+        working-directory: Working_Screen
+        run: npx vitest run src/
+
+      - name: Install Playwright Browsers
+        working-directory: Working_Screen
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        working-directory: Working_Screen
+        run: npx playwright test
+
+      - name: Build frontend
+        working-directory: Working_Screen
+        run: npm run build
+
+  job2_integration:
+    name: Integration Tests (API and Linters)
+    runs-on: ubuntu-latest
+    needs: job1_unit_and_e2e
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Install frontend dependencies
+        working-directory: Working_Screen
+        run: npm ci
+
+      - name: Run integration tests
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_CI }}
+        run: pytest backend/tests/test_integration.py
